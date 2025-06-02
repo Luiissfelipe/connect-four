@@ -1,0 +1,225 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Playpen+Sans+Arabic:wght@100..800&display=swap');
+
+:root {
+    --fonte: "Playpen Sans Arabic", cursive;
+    --color1: #182240; 
+    --color2: #848585;
+    --color3: #C0C0C0;                      
+    --color4: #DAD9D9;
+    --vermelho: #FF0000;
+    --vermelho-claro: #fa8b8b;
+    --amarelo: #FFFF00;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--fonte);
+    
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--color2);
+    color: var(--color4);
+}
+
+main {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 40px;
+    height: 100%;
+}
+
+.menu-inicial {
+    background-color: var(--color1);
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu-inicial-titulo {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.menu-inicial-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#username {
+    background-color: var(--color3);
+    color: black;
+    padding: 5px;
+    border: solid  black 2px;
+    border-radius: 5px;
+}
+
+#dificuldade {
+    background-color: var(--color3);
+    color: black;
+    padding: 2px;
+    border: solid  black 2px;
+    border-radius: 5px;
+}
+
+#dificuldade option {
+    background-color: var(--color3);
+    color: black;
+}
+
+#dificuldade:hover {
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.menu-inicial-formulario-botao-iniciar {
+    background-color: var(--color3);
+    border: solid  black 2px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.menu-inicial-formulario-botao-iniciar:hover {
+    background-color: var(--color2);
+    transition: 0.5s;
+}
+
+.informacoes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: var(--color1);
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.jogo {
+    text-align: center;
+    background-color: var(--color1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.jogo-titulo {
+    font-size: 3rem;
+    color: var(--color4);
+    margin-bottom: 10px;
+}
+
+.jogo-mensagem {
+    font-size: 1.5rem;
+    color: var(--color4);
+    margin-bottom: 20px;
+}
+
+.jogo-tabuleiro {
+    display: grid;
+    grid-template-columns: repeat(7, 60px);
+    gap: 5px;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.coluna {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+    cursor: pointer;
+}
+
+.celula {
+    width: 60px;
+    height: 60px;
+    background-color: var(--color3);
+    border: 2px solid black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.celula:hover {
+    background-color: var(--vermelho-claro);
+    transition: 0.5s;
+}
+
+.jogador {
+    background-color: var(--vermelho); /* Cor do jogador */
+}
+
+.ia {
+    background-color: var(--amarelo); /* Cor da ia */
+}
+
+.jogo-botoes {
+display: flex;
+flex-direction: row;
+justify-content: center;
+gap: 20px;
+margin-top: 15px;
+}
+
+.jogo-botoes-reiniciar, .jogo-botoes-voltar {
+    background-color: var(--color3);
+    color: black;
+    border: solid  black 2px;
+    width: 200px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.jogo-botoes-reiniciar:hover, .jogo-botoes-voltar:hover {
+    background-color: var(--color2);
+    transition: 0.5s;
+}
+
+.ranking {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: var(--color1);
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ranking-titulo {
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.ranking-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    list-style: decimal;
+    list-style-position: inside;
+}
+
+.ranking-botao-reiniciar {
+    background-color: var(--color3);
+    border: solid  black 2px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.ranking-botao-reiniciar:hover {
+    background-color: var(--color2);
+    transition: 0.5s;
+}

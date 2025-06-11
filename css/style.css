@@ -27,7 +27,15 @@ body {
     color: var(--color4);
 }
 
-main {
+.tela {
+    display: none;
+}
+
+.tela.ativo {
+    display: flex;
+}
+
+.app {
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -35,7 +43,8 @@ main {
     height: 100%;
 }
 
-.menu-inicial {
+#menu-inicial {
+    flex-direction: column;
     background-color: var(--color1);
     border-radius: 5px;
     padding: 20px;
@@ -51,13 +60,16 @@ main {
 .menu-inicial-formulario {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+}
+
+.menu-inicial-formulario-label {
+    margin-bottom: 15px;
 }
 
 #username {
     background-color: var(--color3);
     color: black;
-    padding: 5px;
+    padding: 5px 10px;
     border: solid  black 2px;
     border-radius: 5px;
 }
@@ -65,7 +77,7 @@ main {
 #dificuldade {
     background-color: var(--color3);
     color: black;
-    padding: 2px;
+    padding: 5px 10px;
     border: solid  black 2px;
     border-radius: 5px;
 }
@@ -77,7 +89,6 @@ main {
 
 #dificuldade:hover {
     cursor: pointer;
-    transition: 0.5s;
 }
 
 .menu-inicial-formulario-botao-iniciar {
@@ -94,17 +105,35 @@ main {
     transition: 0.5s;
 }
 
-.informacoes {
-    display: flex;
+#informacoes {
     flex-direction: column;
-    gap: 10px;
     background-color: var(--color1);
     border-radius: 5px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.jogo {
+.informacoes-titulo {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.informacoes p {
+    font-weight: 900;
+}
+
+.informacoes-cor {
+    display: inline-block;
+    background-color: var(--vermelho);
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+
+#jogo {
+    flex-direction: column;
     text-align: center;
     background-color: var(--color1);
     padding: 20px;
@@ -134,7 +163,7 @@ main {
 
 .coluna {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     gap: 2px;
     cursor: pointer;
 }
@@ -187,8 +216,7 @@ margin-top: 15px;
     transition: 0.5s;
 }
 
-.ranking {
-    display: flex;
+#ranking {
     flex-direction: column;
     gap: 15px;
     background-color: var(--color1);

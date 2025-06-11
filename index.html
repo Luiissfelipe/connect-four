@@ -5,11 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connect Four</title>
     <link rel="stylesheet" href="css/style.css">
-    <script type="module" src="js/index.js"></script>
+    <script src="js/index.js" type="module"></script>
 </head>
 <body>
-    <main>
-        
+    <main class="app">
+        <div id="menu-inicial" class="tela ativo">
+            <h1 class="menu-inicial-titulo">Menu Inicial</h1>
+            <form method="post" autocomplete="off" class="menu-inicial-formulario">
+                <label class="menu-inicial-formulario-label">
+                Nome: 
+                <input type="text" name="username" id="username" required minlength="3" maxlength="10" placeholder="Digite seu nome">
+                </label>
+                <label class="menu-inicial-formulario-label">
+                    Dificuldade: 
+                    <select name="dificuldade" id="dificuldade">
+                    <option value="facil">Fácil</option>
+                    <option value="medio">Médio</option>
+                    <option value="dificil">Difícil</option>
+                    </select>
+                </label>
+                <input type="submit" value="Iniciar Partida" class="menu-inicial-formulario-botao-iniciar">
+            </form>
+        </div>
+        <div id="informacoes" class="tela">
+            <h1 class="informacoes-titulo">Informações</h1>
+            <p>Nome: <span class="informacoes-nome"></span></p>
+            <p>Pontos: <span class="informacoes-pontos"></span></p>
+            <p>Cor: <span class="informacoes-cor"></span></p>
+            <p>Dificuldade: <span class="informacoes-dificuldade"></span></p>
+        </div>
+        <div id="jogo" class="tela">
+            <div class="jogo-cabecalho">
+                <h1 class="jogo-titulo">Connect Four</h1>
+                <h2 class="jogo-mensagem">É a vez de jogador 1!</h2>
+            </div>
+            <div class="jogo-tabuleiro"></div>
+            <div class="jogo-botoes">
+                <button class="jogo-botoes-reiniciar">Jogar Novamente</button>
+                <button class="jogo-botoes-voltar">Voltar ao Menu Inicial</button>
+            </div>
+        </div>
+        <div id="ranking" class="tela">
+            <h2 class="ranking-titulo">Top 10 Jogadores</h2>
+            <ol class="ranking-lista"></ol>
+            <button class="ranking-botao-reiniciar">Reiniciar Ranking</button>
+        </div>
     </main>
 </body>
 </html>

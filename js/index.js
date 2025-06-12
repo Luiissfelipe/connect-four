@@ -1,4 +1,5 @@
 import { desativarNaTela, criarTabuleiro, ativarInformacoes, ativarJogo, ativarRanking, apagarTabuleiro, ativarMenuInicial, criarListaRanking } from "./script/Tela.js";
+import { verificarFimDeJogo } from "./script/Connect4.js";
 
 let nomeJogador;
 let dificuldade;
@@ -17,6 +18,7 @@ let lista = [
     {nome: "Gabi", pontos: 2}
 ];
 let matrizTabuleiro;
+let turno = 1; // 1 para jogador, 2 para computador
 
 function iniciarPartida() {
     const formulario = document.querySelector('.menu-inicial-formulario');
@@ -96,7 +98,7 @@ function celulaDisponivel(coluna) {
 function cliqueNoTabuleiro() {
     const colunas = document.querySelectorAll(".coluna");
     colunas.forEach((coluna) => {
-        coluna.addEventListener("click", (evento) => {
+        coluna.addEventListener("click", () => {
             const colunaIndex = coluna.getAttribute("data-coluna");
             const linhaDisponivel = celulaDisponivel(colunaIndex);
             if (linhaDisponivel !== null) {
@@ -106,8 +108,34 @@ function cliqueNoTabuleiro() {
                 celula.classList.add('jogador'); // Adiciona uma classe para estilizar a célula
                 // Aqui você pode adicionar lógica para verificar se o jogador ganhou ou se é a vez do computador
             }
+            if (verificarFimDeJogo(matrizTabuleiro) === null) {
+                // Computador faz a jogada
+                verificarVitoria();
+            } else {
+                verificarVitoria(); // Verifica se houve vitória ou empate
+            }
         });
     });
+}
+
+function verificarVitoria() {
+    let resultado = verificarFimDeJogo(matrizTabuleiro);
+    if (resultado === 1) {
+        setTimeout(() => {
+            alert("Parabéns, você venceu!");
+        }, 100); // Exibe a mensagem de vitória após um pequeno atraso
+        pontos += 10; // Adiciona pontos ao jogador
+        const spanPontos = document.querySelector('.informacoes-pontos');
+        spanPontos.textContent = pontos;
+    } else if (resultado === 2) {
+        setTimeout(() => {
+            alert("O computador venceu!");
+        }, 100); // Exibe a mensagem de vitória após um pequeno atraso
+    } else if (resultado === -1) {
+        setTimeout(() => {
+            alert("Empate!");
+        }, 100); // Exibe a mensagem de empate após um pequeno atraso
+    }
 }
 
 iniciarPartida();

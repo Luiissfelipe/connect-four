@@ -1,5 +1,5 @@
 import { desativarNaTela, criarTabuleiro, ativarInformacoes, ativarJogo, ativarRanking, apagarTabuleiro, ativarMenuInicial, criarListaRanking } from "./script/Tela.js";
-import { verificarFimDeJogo } from "./script/Connect4.js";
+import { verificarFimDeJogo, escolherMelhorJogada } from "./script/Connect4.js";
 
 let nomeJogador;
 let dificuldade;
@@ -110,7 +110,7 @@ function cliqueNoTabuleiro() {
             }
             if (verificarFimDeJogo(matrizTabuleiro) === null) {
                 // Computador faz a jogada
-                verificarVitoria();
+                setTimeout(jogadaIA, 500); // A IA faz a jogada após um pequeno atraso
             } else {
                 verificarVitoria(); // Verifica se houve vitória ou empate
             }
@@ -135,6 +135,29 @@ function verificarVitoria() {
         setTimeout(() => {
             alert("Empate!");
         }, 100); // Exibe a mensagem de empate após um pequeno atraso
+    }
+}
+
+function jogadaIA() {
+    let profundidade;
+    switch (dificuldade) {
+        case "facil": profundidade = 1; break; // Dificuldade fácil
+        case "medio": profundidade = 3; break; // Dificuldade média
+        case "dificil": profundidade = 5; break; // Dificuldade difícil
+        default: profundidade = 1; // Dificuldade padrão
+    }
+
+    const colunaEscolhida = escolherMelhorJogada(matrizTabuleiro, profundidade);
+
+    if (colunaEscolhida !== null) {
+        const linhaDisponivel = celulaDisponivel(colunaEscolhida);
+        if (linhaDisponivel !== null) {
+            matrizTabuleiro[linhaDisponivel][colunaEscolhida] = 2; // 2 representa o computador
+            const celula = document.querySelector(`[data-coluna="${colunaEscolhida}"][data-linha="${linhaDisponivel}"]`);
+            celula.classList.add('ia'); // Adiciona uma classe para estilizar a célula
+
+            verificarVitoria(); // Verifica se houve vitória ou empate
+        }
     }
 }
 

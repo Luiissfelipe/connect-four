@@ -1,3 +1,5 @@
+import { NoNAria } from './NoNAria.js';
+
 export function verificarFimDeJogo(matriz) {
     const linhas = matriz.length;
     const colunas = matriz[0].length;
@@ -66,10 +68,9 @@ function minimax(no, profundidade, éMaximizador) {
 
     if (éMaximizador) {
         let melhorValor = -Infinity;
-        let novoNo = new NoNAria(no.matriz, 'jogador'); // Cria um novo nó 
 
         // Para cada possível jogada (filho do nó atual)
-        let filhos = novoNo.gerarFilhos();
+        let filhos = no.gerarFilhos();
         for (let filho of filhos) {
             let valor = minimax(filho, profundidade - 1, false);
             melhorValor = Math.max(melhorValor, valor);
@@ -81,7 +82,7 @@ function minimax(no, profundidade, éMaximizador) {
         let melhorValor = Infinity;
 
         // Para cada possível jogada do adversário
-        let filhos = gerarFilhos(no, 'Oponente');
+        let filhos = no.gerarFilhos();
         for (let filho of filhos) {
             let valor = minimax(filho, profundidade - 1, true);
             melhorValor = Math.min(melhorValor, valor);
@@ -106,6 +107,55 @@ function avaliar(no) {
     }
     return 0; // Caso não seja terminal, retorna 0
 }
+
+export function escolherMelhorJogada(matriz, profundidade) {
+    let melhorValor = -Infinity;
+    let melhorJogada = null;
+
+    const no = new NoNAria(matriz, 2);
+    const jogadasPossiveis = no.verificarCelulasDisponiveis();
+
+    if (jogadasPossiveis.length === 0) {
+        return null; // Se não houver jogadas possíveis, retorna null
+    }
+
+    melhorJogada = jogadasPossiveis[0].coluna;
+
+    for (const jogada of jogadasPossiveis) {
+        const novaMatriz = no.clonarMatriz();
+
+        novaMatriz[jogada.linha][jogada.coluna] = 2;
+
+        const noFilho = new NoNAria(novaMatriz, 1);
+
+        const valorDaJogada = minimax(noFilho, profundidade - 1, false);
+
+        if (valorDaJogada > melhorValor) {
+            melhorValor = valorDaJogada;
+            melhorJogada = jogada.coluna; // Atualiza a melhor jogada
+        }
+    }
+    return melhorJogada; // Retorna a coluna da melhor jogada
+    
+}
+
+function teste() {
+    // Exemplo de uso do minimax
+    const matriz = [
+        [2, 0, 0, 0, 0, 0, 0],
+        [2, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1, 2, 0],
+        [2, 0, 0, 0, 1, 1, 0],
+        [2, 0, 2, 2, 1, 1, 1],
+        [2, 0, 2, 1, 1, 1, 2]
+    ];
+    const no = new NoNAria(matriz, 1);
+    const profundidade = 4; // Defina a profundidade desejada
+    const melhorJogada = escolherMelhorJogada(matriz, profundidade);
+    console.log("Melhor jogada para a IA:", melhorJogada);
+}
+
+//teste();
 
 
 // no -- representa cada estado do jogo

@@ -1,4 +1,4 @@
-class NoNAria {
+export class NoNAria {
     matriz;
     proximoJogador;
     possiveisJogadas;
@@ -11,25 +11,38 @@ class NoNAria {
 
     gerarFilhos() {
         this.possiveisJogadas = [];
-        const colunas = this.matriz[0].length;
+        const celulasDisponiveis = this.verificarCelulasDisponiveis();
+        for (const celula of celulasDisponiveis) {
+            const novaMatriz = this.clonarMatriz();
+            novaMatriz[celula.linha][celula.coluna] = this.proximoJogador;
 
+            let novoNo;
+            if (this.proximoJogador === 1) {
+                novoNo = new NoNAria(novaMatriz, 2);
+            } else {
+                novoNo = new NoNAria(novaMatriz, 1);
+            }
+            this.possiveisJogadas.push(novoNo);
+        }
+        return this.possiveisJogadas;
+    }
+
+    verificarCelulasDisponiveis() {
+        const celulasDisponiveis = [];
+        const linhas = this.matriz.length;
+        const colunas = this.matriz[0].length;
         for (let j = 0; j < colunas; j++) {
-            // Verifica se a coluna está cheia
-            if (this.matriz[0][j] === 0) {
-                // Cria uma cópia da matriz atual
-                const novaMatriz = this.matriz.map(linha => linha.slice());
-                // Encontra a primeira linha vazia na coluna
-                for (let i = this.matriz.length - 1; i >= 0; i--) {
-                    if (novaMatriz[i][j] === 0) {
-                        novaMatriz[i][j] = this.proximoJogador;
-                        break;
-                    }
+            for (let i = linhas - 1; i >= 0; i--) {
+                if (this.matriz[i][j] === 0) {
+                    celulasDisponiveis.push({ linha: i, coluna: j });
+                    break; // Para na primeira célula disponível da coluna
                 }
-                // Adiciona o novo nó filho à lista de possíveis jogadas
-                this.possiveisJogadas.push(new NoNAria(novaMatriz, this.proximoJogador === 'jogador' ? 'Oponente' : 'jogador'));
             }
         }
+        return celulasDisponiveis;
+    }
 
-        return this.possiveisJogadas;
+    clonarMatriz() {
+        return this.matriz.map(linha => linha.slice());
     }
 }

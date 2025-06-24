@@ -18,7 +18,6 @@ let lista = [
     {nome: "Gabi", pontos: 2}
 ];
 let matrizTabuleiro;
-let turno = 1; // 1 para jogador, 2 para computador
 
 function iniciarPartida() {
     const formulario = document.querySelector('.menu-inicial-formulario');
@@ -76,6 +75,17 @@ function voltarMenuInicial() {
     });
 }
 
+function reiniciarRanking() {
+    const botaoReiniciarRanking = document.querySelector('.ranking-botao-reiniciar');
+    botaoReiniciarRanking.addEventListener('click', () => {
+        lista = [];
+        criarListaRanking(lista);
+        const spanPontos = document.querySelector('.informacoes-pontos');
+        spanPontos.textContent = 0; // Reinicia os pontos
+        pontos = 0; // Reinicia os pontos
+    });
+}; 
+
 function criarMatrizTabuleiro() {
     matrizTabuleiro = [];
     for (let i = 0; i < 6; i++) {
@@ -101,16 +111,17 @@ function cliqueNoTabuleiro() {
         coluna.addEventListener("click", () => {
             const colunaIndex = coluna.getAttribute("data-coluna");
             const linhaDisponivel = celulaDisponivel(colunaIndex);
+            const mensagem = document.querySelector('.jogo-mensagem');
             if (linhaDisponivel !== null) {
                 // Atualiza a matrizTabuleiro e a interface do usuário
                 matrizTabuleiro[linhaDisponivel][colunaIndex] = 1; // 1 representa o jogador
                 const celula = document.querySelector(`[data-coluna="${colunaIndex}"][data-linha="${linhaDisponivel}"]`);
                 celula.classList.add('jogador'); // Adiciona uma classe para estilizar a célula
-                // Aqui você pode adicionar lógica para verificar se o jogador ganhou ou se é a vez do computador
             }
             if (verificarFimDeJogo(matrizTabuleiro) === null) {
                 // Computador faz a jogada
-                setTimeout(jogadaIA, 500); // A IA faz a jogada após um pequeno atraso
+                mensagem.innerText = "Aguarde, a IA está jogando...";
+                setTimeout(jogadaIA, 1000); // A IA faz a jogada após um pequeno atraso
             } else {
                 verificarVitoria(); // Verifica se houve vitória ou empate
             }
@@ -141,10 +152,10 @@ function verificarVitoria() {
 function jogadaIA() {
     let profundidade;
     switch (dificuldade) {
-        case "facil": profundidade = 1; break; // Dificuldade fácil
-        case "medio": profundidade = 3; break; // Dificuldade média
-        case "dificil": profundidade = 5; break; // Dificuldade difícil
-        default: profundidade = 1; // Dificuldade padrão
+        case "facil": profundidade = 2; break; // Dificuldade fácil
+        case "medio": profundidade = 4; break; // Dificuldade média
+        case "dificil": profundidade = 6; break; // Dificuldade difícil
+        default: profundidade = 2; // Dificuldade padrão
     }
 
     const colunaEscolhida = escolherMelhorJogada(matrizTabuleiro, profundidade);
@@ -159,8 +170,12 @@ function jogadaIA() {
             verificarVitoria(); // Verifica se houve vitória ou empate
         }
     }
+    // Atualiza a mensagem para o jogador
+    const mensagem = document.querySelector('.jogo-mensagem');
+    mensagem.innerText = "Sua vez de jogar!";
 }
 
 iniciarPartida();
 jogarNovamente();
 voltarMenuInicial();
+reiniciarRanking();

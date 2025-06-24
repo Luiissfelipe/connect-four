@@ -3,7 +3,7 @@ import { verificarFimDeJogo, escolherMelhorJogada } from "./script/Connect4.js";
 
 let nomeJogador;
 let dificuldade;
-let pontos;
+let pontos = 0;
 let lista = [
     {nome: "Luis", pontos: 17},
     {nome: "Gabriel", pontos: 15},
@@ -131,11 +131,20 @@ function cliqueNoTabuleiro() {
 
 function verificarVitoria() {
     let resultado = verificarFimDeJogo(matrizTabuleiro);
+    let pontosGanhos = 0;
+
     if (resultado === 1) {
+        switch (dificuldade) {
+            case "facil": pontosGanhos = 10; break;
+            case "medio": pontosGanhos = 15; break;
+            case "dificil": pontosGanhos = 20; break;
+            default: pontosGanhos = 10;
+        }
+
         setTimeout(() => {
             alert("Parabéns, você venceu!");
         }, 100); // Exibe a mensagem de vitória após um pequeno atraso
-        pontos += 10; // Adiciona pontos ao jogador
+        pontos += pontosGanhos; // Adiciona pontos ao jogador
         const spanPontos = document.querySelector('.informacoes-pontos');
         spanPontos.textContent = pontos;
     } else if (resultado === 2) {
@@ -143,9 +152,19 @@ function verificarVitoria() {
             alert("O computador venceu!");
         }, 100); // Exibe a mensagem de vitória após um pequeno atraso
     } else if (resultado === -1) {
+        switch (dificuldade) {
+            case "facil": pontosGanhos = 4; break;
+            case "medio": pontosGanhos = 6; break;
+            case "dificil": pontosGanhos = 8; break;
+            default: pontosGanhos = 4;
+        }
+
         setTimeout(() => {
             alert("Empate!");
         }, 100); // Exibe a mensagem de empate após um pequeno atraso
+        pontos += pontosGanhos;
+        const spanPontos = document.querySelector('.informacoes-pontos');
+        spanPontos.textContent = pontos;
     }
 }
 

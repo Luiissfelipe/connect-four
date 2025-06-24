@@ -1,39 +1,50 @@
 import { desativarNaTela, criarTabuleiro, ativarInformacoes, ativarJogo, ativarRanking, apagarTabuleiro, ativarMenuInicial, criarListaRanking } from "./script/Tela.js";
 import { verificarFimDeJogo, escolherMelhorJogada } from "./script/Connect4.js";
+import { Jogador } from "./script/Jogador.js";
+import { Heap } from "./script/Heap.js";
+import { salvarHeapNoLocalStorage, carregarHeapDoLocalStorage } from "./script/LocalStorage.js";
 
 let nomeJogador;
 let dificuldade;
-let pontos = 0;
-let lista = [
-    {nome: "Luis", pontos: 17},
-    {nome: "Gabriel", pontos: 15},
-    {nome: "Julia", pontos: 14},
-    {nome: "Fernando", pontos: 12},
-    {nome: "Abner", pontos: 11},
-    {nome: "Jho Natan", pontos: 10},
-    {nome: "Eliesio", pontos: 8},
-    {nome: "Samuel", pontos: 7},
-    {nome: "Carla", pontos: 5},
-    {nome: "Maria", pontos: 3},
-    {nome: "Gabi", pontos: 2}
-];
+let pontos;
+let lista;
 let matrizTabuleiro;
+
+const heapJogadores = carregarHeapDoLocalStorage(Heap, Jogador);
 
 function iniciarPartida() {
     const formulario = document.querySelector('.menu-inicial-formulario');
     formulario.addEventListener('submit', (evento) => {
         evento.preventDefault();
-        nomeJogador = document.querySelector('#username').value;
+        const inputNome = document.querySelector('#username');
+        nomeJogador = inputNome.value.trim();
         dificuldade = document.querySelector('#dificuldade').value;
 
-        if (nomeJogador === ''|| nomeJogador.length < 3 || nomeJogador.length > 10) return;
+        if (nomeJogador === ''|| nomeJogador.length < 3 || nomeJogador.length > 10) {
+            alert("O nome deve ter entre 3 e 10 caracteres.");
+            return;
+        }
 
-        document.querySelector('#username').value = '';
+        inputNome.value = '';
+
+        // Verifica se o jogador já existe no heap
+        let jogadorExistente = heapJogadores.buscarJogadorPorNome(nomeJogador);
+        if (jogadorExistente) {
+            pontos = jogadorExistente.pontos;
+        } else {
+            pontos = 0;
+            const novoJogador = new Jogador(nomeJogador, pontos);
+            heapJogadores.inserir(novoJogador);
+            salvarHeapNoLocalStorage(heapJogadores);
+        }
+        
+        // Atualiza a lista com o heap ordenado
+        lista = heapJogadores.emOrdemDecrescente();
 
         const spanNome = document.querySelector('.informacoes-nome');
         spanNome.textContent = nomeJogador;
         const spanPontos = document.querySelector('.informacoes-pontos');
-        spanPontos.textContent = pontos; // Valor inicial de pontos
+        spanPontos.textContent = pontos;
         const spanDificuldade = document.querySelector('.informacoes-dificuldade');
         spanDificuldade.textContent = dificuldade;
 
@@ -45,7 +56,6 @@ function iniciarPartida() {
         ativarJogo();
         ativarRanking();
         cliqueNoTabuleiro();
-
     });
 }
 
@@ -57,7 +67,7 @@ function jogarNovamente() {
         criarMatrizTabuleiro();
         cliqueNoTabuleiro();
         const spanPontos = document.querySelector('.informacoes-pontos');
-        spanPontos.textContent = pontos; // Reinicia os pontos
+        spanPontos.textContent = pontos;
         criarListaRanking(lista);
     });
 }
@@ -68,21 +78,27 @@ function voltarMenuInicial() {
         apagarTabuleiro();
         desativarNaTela();
         ativarMenuInicial();
-
         nomeJogador = '';
         dificuldade = '';
-        pontos = 0; // Reinicia os pontos
+        pontos = 0;
     });
 }
 
 function reiniciarRanking() {
     const botaoReiniciarRanking = document.querySelector('.ranking-botao-reiniciar');
     botaoReiniciarRanking.addEventListener('click', () => {
+        // Limpa o heap usando o novo método
+        heapJogadores.limpar(); //
+
+        // Limpa o Local Storage
+        localStorage.removeItem('heapJogadores');
+
+        // Limpa a lista e a interface
         lista = [];
         criarListaRanking(lista);
         const spanPontos = document.querySelector('.informacoes-pontos');
-        spanPontos.textContent = 0; // Reinicia os pontos
-        pontos = 0; // Reinicia os pontos
+        spanPontos.textContent = 0;
+        pontos = 0;
     });
 }; 
 
@@ -91,7 +107,7 @@ function criarMatrizTabuleiro() {
     for (let i = 0; i < 6; i++) {
         matrizTabuleiro[i] = [];
         for (let j = 0; j < 7; j++) {
-            matrizTabuleiro[i][j] = 0; // Inicializa a matriz com zeros
+            matrizTabuleiro[i][j] = 0;
         }
     }
 }
@@ -99,82 +115,105 @@ function criarMatrizTabuleiro() {
 function celulaDisponivel(coluna) {
     for (let linha = 5; linha >= 0; linha--) {
         if (matrizTabuleiro[linha][coluna] === 0) {
-            return linha; // Retorna a primeira linha disponível na coluna
+            return linha;
         }
     }
-    return null; // Retorna null se a coluna estiver cheia
+    return null;
 }
 
 function cliqueNoTabuleiro() {
     const colunas = document.querySelectorAll(".coluna");
+    const mensagem = document.querySelector('.jogo-mensagem');
+    let podeJogar = true;
+
     colunas.forEach((coluna) => {
         coluna.addEventListener("click", () => {
-            const colunaIndex = coluna.getAttribute("data-coluna");
+            if (!podeJogar) return;
+
+            const colunaIndex = parseInt(coluna.getAttribute("data-coluna"));
             const linhaDisponivel = celulaDisponivel(colunaIndex);
-            const mensagem = document.querySelector('.jogo-mensagem');
+
             if (linhaDisponivel !== null) {
-                // Atualiza a matrizTabuleiro e a interface do usuário
-                matrizTabuleiro[linhaDisponivel][colunaIndex] = 1; // 1 representa o jogador
+                podeJogar = false; // Bloqueia cliques enquanto a IA joga
+                matrizTabuleiro[linhaDisponivel][colunaIndex] = 1;
                 const celula = document.querySelector(`[data-coluna="${colunaIndex}"][data-linha="${linhaDisponivel}"]`);
-                celula.classList.add('jogador'); // Adiciona uma classe para estilizar a célula
-            }
-            if (verificarFimDeJogo(matrizTabuleiro) === null) {
-                // Computador faz a jogada
-                mensagem.innerText = "Aguarde, a IA está jogando...";
-                setTimeout(jogadaIA, 1000); // A IA faz a jogada após um pequeno atraso
-            } else {
-                verificarVitoria(); // Verifica se houve vitória ou empate
+                celula.classList.add('jogador');
+
+                if (verificarFimDeJogo(matrizTabuleiro) === null) {
+                    mensagem.innerText = "Aguarde, a IA está jogando...";
+                    setTimeout(() => {
+                        jogadaIA();
+                        podeJogar = true; // Libera o clique após a jogada da IA
+                    }, 500); // Meio segundo de delay
+                } else {
+                    verificarVitoria();
+                    podeJogar = true;
+                }
             }
         });
     });
 }
 
+
 function verificarVitoria() {
     let resultado = verificarFimDeJogo(matrizTabuleiro);
-    let pontosGanhos = 0;
+    if (resultado === null) return;
 
-    if (resultado === 1) {
+    let pontosGanhos = 0;
+    let mensagemFinal = "";
+
+    if (resultado === 1) { // Jogador venceu
         switch (dificuldade) {
             case "facil": pontosGanhos = 10; break;
             case "medio": pontosGanhos = 15; break;
             case "dificil": pontosGanhos = 20; break;
             default: pontosGanhos = 10;
         }
+        mensagemFinal = "Parabéns, você venceu!";
+        pontos += pontosGanhos;
 
-        setTimeout(() => {
-            alert("Parabéns, você venceu!");
-        }, 100); // Exibe a mensagem de vitória após um pequeno atraso
-        pontos += pontosGanhos; // Adiciona pontos ao jogador
-        const spanPontos = document.querySelector('.informacoes-pontos');
-        spanPontos.textContent = pontos;
-    } else if (resultado === 2) {
-        setTimeout(() => {
-            alert("O computador venceu!");
-        }, 100); // Exibe a mensagem de vitória após um pequeno atraso
-    } else if (resultado === -1) {
+    } else if (resultado === 2) { // Computador venceu
+        mensagemFinal = "O computador venceu!";
+
+    } else if (resultado === -1) { // Empate
         switch (dificuldade) {
             case "facil": pontosGanhos = 4; break;
             case "medio": pontosGanhos = 6; break;
             case "dificil": pontosGanhos = 8; break;
             default: pontosGanhos = 4;
         }
-
-        setTimeout(() => {
-            alert("Empate!");
-        }, 100); // Exibe a mensagem de empate após um pequeno atraso
+        mensagemFinal = "Empate!";
         pontos += pontosGanhos;
+    }
+
+    setTimeout(() => {
+        alert(mensagemFinal);
+    }, 100);
+
+    // Atualiza pontos se o jogador ganhou ou empatou
+    if (pontosGanhos > 0) {
         const spanPontos = document.querySelector('.informacoes-pontos');
         spanPontos.textContent = pontos;
+
+        let jogador = heapJogadores.buscarJogadorPorNome(nomeJogador);
+        if (jogador) {
+            jogador.pontos = pontos;
+            heapJogadores.atualizarJogador(jogador); //
+            salvarHeapNoLocalStorage(heapJogadores);
+        }
+        lista = heapJogadores.emOrdemDecrescente(); //
+        criarListaRanking(lista);
     }
 }
+
 
 function jogadaIA() {
     let profundidade;
     switch (dificuldade) {
-        case "facil": profundidade = 2; break; // Dificuldade fácil
-        case "medio": profundidade = 4; break; // Dificuldade média
-        case "dificil": profundidade = 6; break; // Dificuldade difícil
-        default: profundidade = 2; // Dificuldade padrão
+        case "facil": profundidade = 2; break;
+        case "medio": profundidade = 4; break;
+        case "dificil": profundidade = 6; break; 
+        default: profundidade = 2;
     }
 
     const colunaEscolhida = escolherMelhorJogada(matrizTabuleiro, profundidade);
@@ -182,14 +221,12 @@ function jogadaIA() {
     if (colunaEscolhida !== null) {
         const linhaDisponivel = celulaDisponivel(colunaEscolhida);
         if (linhaDisponivel !== null) {
-            matrizTabuleiro[linhaDisponivel][colunaEscolhida] = 2; // 2 representa o computador
+            matrizTabuleiro[linhaDisponivel][colunaEscolhida] = 2;
             const celula = document.querySelector(`[data-coluna="${colunaEscolhida}"][data-linha="${linhaDisponivel}"]`);
-            celula.classList.add('ia'); // Adiciona uma classe para estilizar a célula
-
-            verificarVitoria(); // Verifica se houve vitória ou empate
+            celula.classList.add('ia');
+            verificarVitoria();
         }
     }
-    // Atualiza a mensagem para o jogador
     const mensagem = document.querySelector('.jogo-mensagem');
     mensagem.innerText = "Sua vez de jogar!";
 }

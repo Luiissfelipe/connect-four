@@ -3,117 +3,145 @@ export class Heap {
         this.heap = [];
     }
 
-    // Retorna o índice do pai
-    getParentIndex(i) {
+    // Retorna o índice do nó pai
+    indicePai(i) {
         return Math.floor((i - 1) / 2);
     }
 
-    // Retorna o índice do filho à esquerda
-    getLeftChildIndex(i) {
+    // Retorna o índice do filho da esquerda
+    indiceFilhoEsquerda(i) {
         return 2 * i + 1;
     }
 
-    // Retorna o índice do filho à direita
-    getRightChildIndex(i) {
+    // Retorna o índice do filho da direita
+    indiceFilhoDireita(i) {
         return 2 * i + 2;
     }
 
-    // Troca dois elementos de posição no heap
-    swap(i1, i2) {
-        [this.heap[i1], this.heap[i2]] = [this.heap[i2], this.heap[i1]];
+    // Troca a posição de dois elementos no heap.
+    trocar(indice1, indice2) {
+        const temporario = this.heap[indice1];
+        this.heap[indice1] = this.heap[indice2];
+        this.heap[indice2] = temporario;
     }
 
-    // "Peneirar para cima": move um nó para sua posição correta
-    siftUp(i) {
-        let parentIndex = this.getParentIndex(i);
-        // Compara com o pai enquanto não for a raiz e tiver mais pontos que o pai
-        while (i > 0 && this.heap[i].pontos > this.heap[parentIndex].pontos) {
-            this.swap(i, parentIndex);
-            i = parentIndex;
-            parentIndex = this.getParentIndex(i);
-        }
-    }
+    // Garante a propriedade do heap movendo um elemento para cima.
+    heapifyUp(i) {
+        let indiceAtual = i;
+        let indiceDoPai = this.indicePai(indiceAtual);
 
-    // "Peneirar para baixo": move um nó para sua posição correta
-    siftDown(i) {
-        let maxIndex = i;
-        const leftIndex = this.getLeftChildIndex(i);
-        const rightIndex = this.getRightChildIndex(i);
-        const size = this.heap.length;
-
-        if (leftIndex < size && this.heap[leftIndex].pontos > this.heap[maxIndex].pontos) {
-            maxIndex = leftIndex;
-        }
-        if (rightIndex < size && this.heap[rightIndex].pontos > this.heap[maxIndex].pontos) {
-            maxIndex = rightIndex;
-        }
-
-        if (i !== maxIndex) {
-            this.swap(i, maxIndex);
-            this.siftDown(maxIndex);
+        // Enquanto o filho for maior que o pai, eles trocam de lugar.
+        while (indiceAtual > 0 && this.heap[indiceAtual].pontos > this.heap[indiceDoPai].pontos) {
+            this.trocar(indiceAtual, indiceDoPai);
+            indiceAtual = indiceDoPai;
+            indiceDoPai = this.indicePai(indiceAtual);
         }
     }
 
-    // Insere um novo jogador no heap
+    // Garante a propriedade do heap movendo um elemento para baixo.
+    heapifyDown(i) {
+        let indiceAtual = i;
+        const tamanhoDoHeap = this.heap.length;
+
+        // Loop para continuar a verificação até que o nó esteja na posição correta.
+        while (true) {
+            let indiceMaior = indiceAtual;
+            const indiceEsquerdo = this.indiceFilhoEsquerda(indiceAtual);
+            const indiceDireito = this.indiceFilhoDireita(indiceAtual);
+
+            // Verifica se o filho da esquerda é maior que o nó atual.
+            if (indiceEsquerdo < tamanhoDoHeap && this.heap[indiceEsquerdo].pontos > this.heap[indiceMaior].pontos) {
+                indiceMaior = indiceEsquerdo;
+            }
+
+            // Verifica se o filho da direita é maior que o maior encontrado até agora.
+            if (indiceDireito < tamanhoDoHeap && this.heap[indiceDireito].pontos > this.heap[indiceMaior].pontos) {
+                indiceMaior = indiceDireito;
+            }
+
+            // Se o nó atual já é o maior, a propriedade do heap está correta.
+            if (indiceAtual === indiceMaior) {
+                break;
+            }
+
+            // Caso contrário, troca com o maior filho e continua a verificação.
+            this.trocar(indiceAtual, indiceMaior);
+            indiceAtual = indiceMaior;
+        }
+    }
+
+    // Adiciona um novo jogador ao heap.
     inserir(jogador) {
         this.heap.push(jogador);
-        this.siftUp(this.heap.length - 1);
+        this.heapifyUp(this.heap.length - 1); // Ajusta a posição do novo elemento.
     }
 
-    // Remove e retorna o jogador com a maior pontuação (a raiz)
-    removerMax() {
+    // Remove e retorna o jogador com mais pontos (a raiz do heap).
+    removerMaior() {
         if (this.heap.length === 0) {
-            return null;
+            return null; // Heap está vazio.
         }
         if (this.heap.length === 1) {
-            return this.heap.pop();
+            return this.heap.pop(); // Apenas um elemento no heap.
         }
-        const max = this.heap[0];
+
+        const maiorJogador = this.heap[0];
+        // Move o último elemento para a raiz para depois reajustar o heap.
         this.heap[0] = this.heap.pop();
-        this.siftDown(0);
-        return max;
+        this.heapifyDown(0);
+
+        return maiorJogador;
     }
     
-    // Retorna uma CÓPIA do heap ordenada (maior para menor)
-    // Usa o algoritmo HeapSort para ordenar sem destruir o heap original
+    // Retorna uma cópia do array de jogadores em ordem decrescente de pontos.
     emOrdemDecrescente() {
-        const sortedArray = [];
-        const tempHeap = new Heap();
-        tempHeap.heap = [...this.heap]; // Cria uma cópia para não modificar o original
+        const arrayOrdenado = [];
+        // Cria um heap temporário para não modificar o original.
+        const heapTemporario = new Heap();
+        heapTemporario.heap = this.heap.slice(); 
 
-        while (tempHeap.heap.length > 0) {
-            sortedArray.push(tempHeap.removerMax());
+        while (heapTemporario.heap.length > 0) {
+            // Extrai o maior de cada vez para construir o array ordenado.
+            arrayOrdenado.push(heapTemporario.removerMaior());
         }
-        return sortedArray;
+        return arrayOrdenado;
     }
 
+    // Busca um jogador pelo nome.
     buscarJogadorPorNome(nome) {
         return this.heap.find(jogador => jogador.nome === nome) || null;
     }
     
-    // Método privado para remover um jogador específico
+    // (Convenção para método privado) Remove um jogador específico do heap.
     #removerJogadorPorNome(nome) {
-        const index = this.heap.findIndex(j => j.nome === nome);
-        if (index === -1) return;
+        const indiceDoJogador = this.heap.findIndex(j => j.nome === nome);
+        
+        if (indiceDoJogador === -1) {
+            return; // Jogador não encontrado.
+        }
 
-        // Troca o elemento a ser removido com o último
-        this.swap(index, this.heap.length - 1);
-        // Remove o último elemento (que agora é o que queremos remover)
+        // Troca o jogador a ser removido com o último elemento do heap.
+        this.trocar(indiceDoJogador, this.heap.length - 1);
+        // Remove o jogador do final do array.
         this.heap.pop();
         
-        // Reposiciona o elemento que foi trocado, se necessário
-        if (index < this.heap.length) {
-            this.siftUp(index);
-        this.siftDown(index);
+        // Reajusta a posição do elemento que foi trocado, se ele não for o último.
+        if (indiceDoJogador < this.heap.length) {
+            // Tenta mover para cima e para baixo para encontrar a posição correta.
+            this.heapifyUp(indiceDoJogador);
+            this.heapifyDown(indiceDoJogador);
         }
     }
 
+    // Atualiza os dados de um jogador.
     atualizarJogador(jogadorAtualizado) {
+        // Usa o método privado para remover a versão antiga.
         this.#removerJogadorPorNome(jogadorAtualizado.nome);
+        // Insere a versão atualizada.
         this.inserir(jogadorAtualizado);
     }
 
-    // Limpa o heap
+    // Limpa todos os jogadores do heap.
     limpar() {
         this.heap = [];
     }

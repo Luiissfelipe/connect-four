@@ -254,3 +254,8 @@ margin-top: 15px;
     background-color: var(--color2);
     transition: 0.5s;
 }
+
+.jogo-tabuleiro.finalizado {
+    opacity: 0.6;
+    pointer-events: none;
+}
